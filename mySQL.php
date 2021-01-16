@@ -42,6 +42,11 @@ class mySQL
         summary TEXT NOT NULL,
         PRIMARY KEY(_id));";
 
+    private $mHost, $mUser, $mPass, $mPort;
+    private $mLastErrorCode, $mLastErrorMsg;
+    private $mErrorCodes, $mErrorMsgs;
+    private $mDb; //fundamental!
+
     const DEFAULT_HOST = "localhost";
     const DEFAULT_USER = "root";
     const DEFAULT_PASS = "UkX!#s36>BE-w#4}";
@@ -86,6 +91,17 @@ class mySQL
             $this->errorFb();
         }//if
     }//install
+
+    private function errorFb(){
+        if ($this->mLastErrorCode!==0){
+            $strMsg = sprintf(
+                "Last error code: %d\n%s",
+                $this->mLastErrorCode,
+                $this->mLastErrorMsg
+            );
+            echo $strMsg;
+        }
+    }//errorFb
 
     public function insertUrl(
         string $url,
