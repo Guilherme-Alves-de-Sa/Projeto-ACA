@@ -47,7 +47,7 @@ class utilitiesACA
 
     //---------------------------------- EXTRACTION ----------------------------------
 
-    public static function extractCode($htmlFile){
+    public static function extractFromCode($htmlFile){
         $classes = array(self::CLASS_TV=>array(), self::CLASS_MUSIC=>array(),
            self::CLASS_MOVIES=>array(), self::CLASS_GAMES=>array());
 
@@ -77,11 +77,35 @@ class utilitiesACA
             }
 
         }//foreach
-
+        return $classes;
     }// extractCode
 
-    // $url -> link to title page, in there we'll have access to all the information about this individual entity(movie, music etc)
-    public static function titlePage(){
+    public static function pageInfoExtraction($htmlFile){
+        $oDom = new DOMDocument();
+        @$oDom->loadHtml($htmlFile);
 
+        // TITLE
+
+        $title = $oDom->getElementsByTagName("h1")[0]->nodeValue;
+
+        // METASCORE
+
+        $a = $oDom->getElementsByTagName("a");
+        foreach ($a as $elem){
+            $att = $elem->getAttribute("class");
+            if($att === "metascore_anchor"){
+                $span = $elem->getElementsByTagName("span");
+                $score = $span[0]->nodeValue;
+                break;
+            }
+        }
+
+        $info = [
+            "Title" => $title,
+            "Score" => $score
+        ];
+
+        return $info;
     }
+
 }
