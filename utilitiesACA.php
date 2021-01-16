@@ -80,7 +80,7 @@ class utilitiesACA
         return $classes;
     }// extractCode
 
-    public static function pageInfoExtraction($htmlFile){
+    public static function pageInfoExtraction($htmlFile, $url){
         $oDom = new DOMDocument();
         @$oDom->loadHtml($htmlFile);
 
@@ -100,9 +100,48 @@ class utilitiesACA
             }
         }
 
+        // REST
+
+        $spanElems = $oDom->getElementsByTagName("span");
+
+        if(strpos($url,"/tv/") !== false){
+            foreach ($spanElems as $span){
+                if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
+                    $summary = $span->nextSibling->nextSibling->nodeValue;
+                    break;
+                }
+            }
+        }
+        elseif (strpos($url,"/movie/") !== false ){
+            foreach ($spanElems as $span){
+                if($span->getAttribute("class") === "blurb blurb_expanded"){
+                    $summary = $span->nodeValue;
+                    break;
+                }
+            }
+        }
+        elseif (strpos($url,"/music/")!== false){
+
+            foreach ($spanElems as $span){
+                if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
+                    $summary = $span->nextSibling->nextSibling->nodeValue;
+                    break;
+                }
+            }
+        }
+        elseif (strpos($url,"/game/")!== false){
+            foreach ($spanElems as $span){
+                if($span->getAttribute("class") === "blurb blurb_expanded"){
+                    $summary = $span->nodeValue;
+                    break;
+                }
+            }
+        }
+
         $info = [
             "Title" => $title,
-            "Score" => $score
+            "Score" => $score,
+            "Summary" => trim($summary)
         ];
 
         return $info;
