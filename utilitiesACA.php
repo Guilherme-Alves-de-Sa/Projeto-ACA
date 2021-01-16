@@ -4,8 +4,8 @@
 class utilitiesACA
 {
     const SIGNATURE = "For educational purposes only";
-    
-    //---------------------------------- CURL ----------------------------------
+
+    //---------------------------------- CURL START ----------------------------------
 
     public static function consumeURL($url){
 
@@ -36,8 +36,10 @@ class utilitiesACA
             // variable with the operation's result
             $result = curl_exec($curlResource);
 
-
+            return $result;
         }
-
+        return false;
     }
+
+    //---------------------------------- CONSUMING ----------------------------------
 }
