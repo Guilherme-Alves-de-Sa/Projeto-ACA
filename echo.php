@@ -5,21 +5,35 @@ $cURL = new utilitiesACA();
 
 $website = $cURL->consumeURL($urlConsume);
 
-mkdir ("./website",
+$tables = $cURL->extractCode($website);
+
+var_dump($tables);
+
+
+
+//$value = trim($tables[2]->nodeValue);
+//file_put_contents("./website/table.txt", $value);
+
+@mkdir ("./website/games",
+    0777, //irrelevant in Windows
+    true);
+@mkdir ("./website/movies",
+    0777, //irrelevant in Windows
+    true);
+@mkdir ("./website/tv-shows",
+    0777, //irrelevant in Windows
+    true);
+@mkdir ("./website/music",
     0777, //irrelevant in Windows
     true);
 
 
 
-echo file_put_contents("./website/site.html", $website);
-
 // ***************************************************************************************
-function remove_http($url) {
-    $disallowed = array('http://', 'https://');
-    foreach($disallowed as $d) {
-        if(strpos($url, $d) === 0) {
-            return str_replace($d, '', $url);
-        }
-    }
-    return $url;
-}
+
+/*
+ * span class="metascore_w medium movie mixed" - score
+ * <table class="releases - tabelas
+ *
+ *
+ */

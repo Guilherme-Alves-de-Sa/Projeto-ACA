@@ -4,6 +4,10 @@
 class utilitiesACA
 {
     const SIGNATURE = "For educational purposes only";
+    const CLASS_MOVIES = "releases movies_releases";
+    const CLASS_GAMES = "releases games_releases";
+    const CLASS_MUSIC = "releases albums_releases";
+    const CLASS_TV = "releases tv-shows_releases";
 
     //---------------------------------- CURL START ----------------------------------
 
@@ -41,5 +45,40 @@ class utilitiesACA
         return false;
     }
 
-    //---------------------------------- CONSUMING ----------------------------------
+    //---------------------------------- EXTRACTION ----------------------------------
+
+    public static function extractCode($htmlFile){
+        $classes = array(self::CLASS_TV=>array(), self::CLASS_MUSIC=>array(),
+           self::CLASS_MOVIES=>array(), self::CLASS_GAMES=>array());
+
+
+        $oDom = new DOMDocument();
+
+        @$oDom->loadHtml($htmlFile);
+
+        $table = $oDom->getElementsByTagName('table');
+
+        foreach ($table as $t){
+            $class = trim($t->getAttribute('class'));
+
+            if($class === self::CLASS_GAMES || $class === self::CLASS_MOVIES || $class === self::CLASS_MUSIC || $class === self::CLASS_TV){
+                $a = $t->getElementsByTagName('a');
+                $i = 0;
+                foreach($a as $elem) {
+                    $classA = $elem->getAttribute('class');
+                    if($classA === "title"){
+                        $title = $elem->getAttribute('href');
+                        $classes[$class][$i] = $title;
+                        $i++;
+                    }
+
+                }
+
+            }
+
+        }//foreach
+
+        return $classes;
+
+    }
 }
