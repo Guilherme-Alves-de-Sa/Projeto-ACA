@@ -5,9 +5,9 @@ $cURL = new utilitiesACA();
 
 $website = $cURL->consumeURL($urlConsume);
 
-$tables = $cURL->extractCode($website);
+$cURL->extractCode($website);
 
-var_dump($tables);
+
 
 
 

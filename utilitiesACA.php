@@ -78,7 +78,10 @@ class utilitiesACA
 
         }//foreach
 
-        return $classes;
+    }// extractCode
+
+    // $url -> link to title page, in there we'll have access to all the information about this individual entity(movie, music etc)
+    public static function titlePage(){
 
     }
 }
