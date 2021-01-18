@@ -108,45 +108,19 @@ class utilitiesACA
 
         $summary = "No Summary"; // in case there is no summary available on the entity's page
 
-        // TV pages
-        if(strpos($url,"/tv/") !== false){
-            foreach ($spanElems as $span){
-                if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
-                    $summary = $span->nextSibling->nextSibling->nodeValue;
-                    break;
-                }
-            }
-        }
-
-        // Movie pages
-        elseif (strpos($url,"/movie/") !== false ){
-            foreach ($spanElems as $span){
-                if($span->getAttribute("class") === "blurb blurb_expanded"){
-                    $summary = $span->nodeValue;
-                    break;
-                }
-            }
-        }
-
-        // Music pages
-        elseif (strpos($url,"/music/")!== false){
-
-            foreach ($spanElems as $span){
-                if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
-                    $summary = $span->nextSibling->nextSibling->nodeValue;
-                    break;
-                }
-            }
-        }
-
-        // Game pages
-        elseif (strpos($url,"/game/")!== false){
-            foreach ($spanElems as $span){
-                if($span->getAttribute("class") === "blurb blurb_expanded"){
-                    $summary = $span->nodeValue;
-                    break;
-                }
-            }
+        foreach ($spanElems as $span){
+            // apanhar Summary
+               if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
+                   if($span->nextSibling->nextSibling->getAttribute("class")!=="inline_expand_collapse inline_collapsed"){
+                       $summary = $span->nextSibling->nextSibling->nodeValue;
+                       break;
+                   }
+               }
+               if($span->getAttribute("class") === "blurb blurb_expanded"){
+                   $summary = $span->nodeValue;
+                   $summary = stripos($summary, "Expand");
+                   break;
+               }
         }
 
         // sets of data to insert in DB

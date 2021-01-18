@@ -65,7 +65,7 @@ class mySQL
             $this->mHost,
             $this->mUser,
             $this->mPass,
-            $this->mDataBase,
+            "",
             $this->mPort
         );
         $this->mLastErrorCode = mysqli_connect_errno();
@@ -82,30 +82,6 @@ class mySQL
         $this->mErrorCodes[] = $this->mLastErrorCode;
         $this->mErrorMsgs[] = $this->mLastErrorMsg;
     }//updateError
-
-    public function install(){
-        if ($this->mDb){
-            $this->mDb->query(self::CREATE_SCHEMA);
-            $this->updateErrors();
-            $this->errorFb();
-
-            $this->mDb->query(self::CREATE_TABLE_MOVIES);
-            $this->updateErrors();
-            $this->errorFb();
-
-            $this->mDb->query(self::CREATE_TABLE_MUSIC);
-            $this->updateErrors();
-            $this->errorFb();
-
-            $this->mDb->query(self::CREATE_TABLE_TV_SHOWS);
-            $this->updateErrors();
-            $this->errorFb();
-
-            $this->mDb->query(self::CREATE_TABLE_GAMES);
-            $this->updateErrors();
-            $this->errorFb();
-        }//if
-    }//install
 
     private function errorFb(){
         if ($this->mLastErrorCode!==0){
@@ -177,4 +153,31 @@ class mySQL
         $this->updateErrors();
         $this->errorFb();
     }//insertUrl
+
+    public function install(){
+        if ($this->mDb){
+
+            $this->mDb->query(self::CREATE_SCHEMA);
+            $this->updateErrors();
+            $this->errorFb();
+            $this->mDb -> select_db($this->mDataBase);
+
+            $this->mDb->query(self::CREATE_TABLE_MOVIES);
+            $this->updateErrors();
+            $this->errorFb();
+
+            $this->mDb->query(self::CREATE_TABLE_MUSIC);
+            $this->updateErrors();
+            $this->errorFb();
+
+            $this->mDb->query(self::CREATE_TABLE_TV_SHOWS);
+            $this->updateErrors();
+            $this->errorFb();
+
+            $this->mDb->query(self::CREATE_TABLE_GAMES);
+            $this->updateErrors();
+            $this->errorFb();
+        }//if
+    }//install
+
 }
