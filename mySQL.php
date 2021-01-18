@@ -3,8 +3,8 @@
 
 class mySQL
 {
-    const CREATE_SCHEMA_MOVIES =
-        "CREATE SCHEMA IF NOT EXISTS metacritic_movies;";
+    const CREATE_SCHEMA =
+        "CREATE SCHEMA IF NOT EXISTS metacritic;";
 
     const CREATE_TABLE_MOVIES =
         "CREATE TABLE IF NOT EXISTS metacritic_movies(
@@ -42,7 +42,7 @@ class mySQL
         summary TEXT NOT NULL,
         PRIMARY KEY(_id));";
 
-    private $mHost, $mUser, $mPass, $mPort;
+    private $mHost, $mUser, $mPass, $mPort, $mDataBase;
     private $mLastErrorCode, $mLastErrorMsg;
     private $mErrorCodes, $mErrorMsgs;
     private $mDb; //fundamental!
@@ -51,18 +51,21 @@ class mySQL
     const DEFAULT_USER = "root";
     const DEFAULT_PASS = "UkX!#s36>BE-w#4}";
     const DEFAULT_PORT = 3306;
+    const DEFAULT_SCHEMA = "metacritic";
 
     public function __construct(){
         $this->mHost = self::DEFAULT_HOST;
         $this->mUser = self::DEFAULT_USER;
         $this->mPass = self::DEFAULT_PASS;
         $this->mPort = self::DEFAULT_PORT;
+        $this->mDataBase = self::DEFAULT_SCHEMA;
+
 
         $this->mDb = mysqli_connect(
             $this->mHost,
             $this->mUser,
             $this->mPass,
-            "",
+            $this->mDataBase,
             $this->mPort
         );
         $this->mLastErrorCode = mysqli_connect_errno();
@@ -82,11 +85,23 @@ class mySQL
 
     public function install(){
         if ($this->mDb){
-            $this->mDb->query(self::CREATE_SCHEMA_MOVIES);
+            $this->mDb->query(self::CREATE_SCHEMA);
             $this->updateErrors();
             $this->errorFb();
 
             $this->mDb->query(self::CREATE_TABLE_MOVIES);
+            $this->updateErrors();
+            $this->errorFb();
+
+            $this->mDb->query(self::CREATE_TABLE_MUSIC);
+            $this->updateErrors();
+            $this->errorFb();
+
+            $this->mDb->query(self::CREATE_TABLE_TV_SHOWS);
+            $this->updateErrors();
+            $this->errorFb();
+
+            $this->mDb->query(self::CREATE_TABLE_GAMES);
             $this->updateErrors();
             $this->errorFb();
         }//if
@@ -103,14 +118,59 @@ class mySQL
         }
     }//errorFb
 
-    public function insertUrl(
+    public function insertMovies(
         string $url,
         string $title,
         string $score,
         string $summary
     ){
         $q = "INSERT INTO metacritic_movies  VALUES (".
-            "null, '$url', '$title', '$score','$summary');";
+            "null, '$url', '$title', '$score', '$summary');";
+
+        $this->mDb->query($q);
+
+        $this->updateErrors();
+        $this->errorFb();
+    }//insertUrl
+
+    public function insertMusic(
+        string $url,
+        string $title,
+        string $score,
+        string $summary
+    ){
+        $q = "INSERT INTO metacritic_music  VALUES (".
+            "null, '$url', '$title', '$score', '$summary');";
+
+        $this->mDb->query($q);
+
+        $this->updateErrors();
+        $this->errorFb();
+    }//insertUrl
+
+    public function insertGames(
+        string $url,
+        string $title,
+        string $score,
+        string $summary
+    ){
+        $q = "INSERT INTO metacritic_games  VALUES (".
+            "null, '$url', '$title', '$score', '$summary');";
+
+        $this->mDb->query($q);
+
+        $this->updateErrors();
+        $this->errorFb();
+    }//insertUrl
+
+    public function insertTVshows(
+        string $url,
+        string $title,
+        string $score,
+        string $summary
+    ){
+        $q = "INSERT INTO metacritic_tv_shows  VALUES (".
+            "null, '$url', '$title', '$score', '$summary');";
 
         $this->mDb->query($q);
 

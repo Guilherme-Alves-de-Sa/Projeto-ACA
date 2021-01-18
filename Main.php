@@ -46,18 +46,19 @@ foreach ($entitiesInfo as $entity){
 
         if(strpos($page,"/tv/") !== false){
 //            file_put_contents("website/tv-shows.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
+            $db->insertTVshows($url, $title, $score, $summary);
         }
         elseif (strpos($page,"/movie/") !== false ){
 //            file_put_contents("website/movies.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-                echo $url.PHP_EOL.$title.PHP_EOL.$score.PHP_EOL.$summary.PHP_EOL;
-            $db->insertUrl($url, $title, $score, $summary);
+            $db->insertMovies($url, $title, $score, $summary);
         }
         elseif (strpos($page,"/music/")!== false){
 //            file_put_contents("website/music.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-
+            $db->insertMusic($url, $title, $score, $summary);
         }
         elseif (strpos($page,"/game/")!== false){
 //            file_put_contents("website/games.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
+            $db->insertGames($url, $title, $score, $summary);
 
         }
     }

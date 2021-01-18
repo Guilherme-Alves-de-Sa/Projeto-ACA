@@ -148,13 +148,20 @@ class utilitiesACA
                 }
             }
         }
-        
+
         // sets of data to insert in DB
         $info = [
             "Title" => $title,
             "Score" => $score,
             "Summary" => trim($summary)
         ];
+
+        // string treatment to make sure they can be inserted into the DB (looking for ' and ")
+        $badChars = array("'", '"');
+        $replacingChars = array("|","/");
+        foreach($info as $key => $value){
+            $info[$key] = str_replace($badChars, $replacingChars, "$value");
+        }
 
         return $info;
     }
