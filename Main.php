@@ -16,24 +16,27 @@
 require_once "utilitiesACA.php";
 require_once "mySQL.php";
 
+$db = new mySQL();
+$db->install();
+
 $urlConsume = "https://www.metacritic.com";
 $cURL = new utilitiesACA();
 
-$website = $cURL->consumeURL($urlConsume);
+$website = $cURL->consumeURL($urlConsume); // consumes metacritic home page
 
+// extracts from the home page the links of the top movies, music, tv-shows and games
 $entitiesInfo = $cURL->extractFromCode($website);
 
 var_dump($entitiesInfo);
 
-$db = new mySQL();
-$db->install();
-
+// goes through each link extracted, they're separated by category (movie, music, tv and game)
 foreach ($entitiesInfo as $entity){
 
+    // goes through the links top 10 of each category
     foreach($entity as $page){
-        $url = $urlConsume . $page;
-        $pageHtml = $cURL->consumeURL($url);
-        $pageInfo = $cURL->pageInfoExtraction($pageHtml, $page);
+        $url = $urlConsume . $page; // base link + path to entity page
+        $pageHtml = $cURL->consumeURL($url); // consumes entity page
+        $pageInfo = $cURL->pageInfoExtraction($pageHtml, $page); // extracts the information the page
 
 
         $title = $pageInfo["Title"];
@@ -46,7 +49,8 @@ foreach ($entitiesInfo as $entity){
         }
         elseif (strpos($page,"/movie/") !== false ){
 //            file_put_contents("website/movies.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-                $db->insertUrl($url, $title, $score, $summary);
+                echo $url.PHP_EOL.$title.PHP_EOL.$score.PHP_EOL.$summary.PHP_EOL;
+            $db->insertUrl($url, $title, $score, $summary);
         }
         elseif (strpos($page,"/music/")!== false){
 //            file_put_contents("website/music.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);

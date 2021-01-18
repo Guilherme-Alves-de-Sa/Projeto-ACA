@@ -45,7 +45,7 @@ class utilitiesACA
         return false;
     }
 
-    //---------------------------------- EXTRACTION ----------------------------------
+    //---------------------------------- EXTRACTION OF TOP 10 OF EACH CATEGORY IN HOMEPAGE ----------------------------------
 
     public static function extractFromCode($htmlFile){
         $classes = array(self::CLASS_TV=>array(), self::CLASS_MUSIC=>array(),
@@ -80,6 +80,8 @@ class utilitiesACA
         return $classes;
     }// extractCode
 
+    //---------------------------------- EXTRACTION OF ENTITY PAGE ----------------------------------
+
     public static function pageInfoExtraction($htmlFile, $url){
         $oDom = new DOMDocument();
         @$oDom->loadHtml($htmlFile);
@@ -104,6 +106,9 @@ class utilitiesACA
 
         $spanElems = $oDom->getElementsByTagName("span");
 
+        $summary = "No Summary"; // in case there is no summary available on the entity's page
+
+        // TV pages
         if(strpos($url,"/tv/") !== false){
             foreach ($spanElems as $span){
                 if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
@@ -112,6 +117,8 @@ class utilitiesACA
                 }
             }
         }
+
+        // Movie pages
         elseif (strpos($url,"/movie/") !== false ){
             foreach ($spanElems as $span){
                 if($span->getAttribute("class") === "blurb blurb_expanded"){
@@ -120,6 +127,8 @@ class utilitiesACA
                 }
             }
         }
+
+        // Music pages
         elseif (strpos($url,"/music/")!== false){
 
             foreach ($spanElems as $span){
@@ -129,6 +138,8 @@ class utilitiesACA
                 }
             }
         }
+
+        // Game pages
         elseif (strpos($url,"/game/")!== false){
             foreach ($spanElems as $span){
                 if($span->getAttribute("class") === "blurb blurb_expanded"){
@@ -137,7 +148,8 @@ class utilitiesACA
                 }
             }
         }
-
+        
+        // sets of data to insert in DB
         $info = [
             "Title" => $title,
             "Score" => $score,
