@@ -1,10 +1,18 @@
 <?php
 
+DEFINE("today",date("Ymd"));
 
 class mySQL
 {
+    const TABLE_MOVIES = "metacritic_movies";
+    const TABLE_TV_SHOWS = "metacritic_tv_shows";
+    const TABLE_MUSIC = "metacritic_music";
+    const TABLE_GAMES = "metacritic_games";
+    
+    const DEFAULT_SCHEMA = "metacritic".today;
+
     const CREATE_SCHEMA =
-        "CREATE SCHEMA IF NOT EXISTS metacritic;";
+        "CREATE SCHEMA IF NOT EXISTS ".self::DEFAULT_SCHEMA.";";
 
     const CREATE_TABLE_MOVIES =
         "CREATE TABLE IF NOT EXISTS metacritic_movies(
@@ -51,7 +59,6 @@ class mySQL
     const DEFAULT_USER = "root";
     const DEFAULT_PASS = "UkX!#s36>BE-w#4}";
     const DEFAULT_PORT = 3306;
-    const DEFAULT_SCHEMA = "metacritic";
 
     public function __construct(){
         $this->mHost = self::DEFAULT_HOST;
@@ -179,5 +186,66 @@ class mySQL
             $this->errorFb();
         }//if
     }//install
+
+    public function selectAll(){
+
+        $qMovies = "SELECT * FROM ".self::TABLE_MOVIES.";";
+        $qTV = "SELECT * FROM ".self::TABLE_TV_SHOWS.";";
+        $qMusic = "SELECT * FROM ".self::TABLE_MUSIC.";";
+        $qGames = "SELECT * FROM ".self::TABLE_GAMES.";";
+
+        $resultMovies = $this->mDb->query($qMovies);
+        $this->updateErrors();
+        $this->errorFb();
+
+        $resultTV = $this->mDb->query($qTV);
+        $this->updateErrors();
+        $this->errorFb();
+
+        $resultMusic = $this->mDb->query($qMusic);
+        $this->updateErrors();
+        $this->errorFb();
+
+        $resultGames = $this->mDb->query($qGames);
+        $this->updateErrors();
+        $this->errorFb();
+
+        $assocMovies =
+            mysqli_fetch_all(
+                $resultMovies,
+                MYSQLI_ASSOC
+            );
+
+        $assocTV =
+            mysqli_fetch_all(
+                $resultTV,
+                MYSQLI_ASSOC
+            );
+
+        $assocMusic =
+            mysqli_fetch_all(
+                $resultMusic,
+                MYSQLI_ASSOC
+            );
+
+        $assocGames =
+            mysqli_fetch_all(
+                $resultGames,
+                MYSQLI_ASSOC
+            );
+
+        $array = [
+            "Movies" => $assocMovies,
+            "TV Shows" => $assocTV,
+            "Music" => $assocMusic,
+            "Games" => $assocGames
+        ];
+
+        return $array;
+    }//selectAll
+
+    public function selectFromMovies(){
+
+    }
 
 }
