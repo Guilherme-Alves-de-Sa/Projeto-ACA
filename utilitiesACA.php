@@ -4,10 +4,6 @@
 class utilitiesACA
 {
     const SIGNATURE = "For educational purposes only";
-    const CLASS_MOVIES = "releases movies_releases";
-    const CLASS_GAMES = "releases games_releases";
-    const CLASS_MUSIC = "releases albums_releases";
-    const CLASS_TV = "releases tv-shows_releases";
 
     //---------------------------------- CURL START ----------------------------------
 
@@ -45,44 +41,10 @@ class utilitiesACA
         return false;
     }
 
-    //---------------------------------- EXTRACTION OF TOP 10 OF EACH CATEGORY IN HOMEPAGE ----------------------------------
-
-    public static function extractFromCode($htmlFile){
-        $classes = array(self::CLASS_TV=>array(), self::CLASS_MUSIC=>array(),
-           self::CLASS_MOVIES=>array(), self::CLASS_GAMES=>array());
-
-
-        $oDom = new DOMDocument();
-
-        @$oDom->loadHtml($htmlFile);
-
-        $table = $oDom->getElementsByTagName('table');
-
-        foreach ($table as $t){
-            $class = trim($t->getAttribute('class'));
-
-            if($class === self::CLASS_GAMES || $class === self::CLASS_MOVIES || $class === self::CLASS_MUSIC || $class === self::CLASS_TV){
-                $a = $t->getElementsByTagName('a');
-                $i = 0;
-                foreach($a as $elem) {
-                    $classA = $elem->getAttribute('class');
-                    if($classA === "title"){
-                        $title = $elem->getAttribute('href');
-                        $classes[$class][$i] = $title;
-                        $i++;
-                    }
-
-                }
-
-            }
-
-        }//foreach
-        return $classes;
-    }// extractCode
 
     //---------------------------------- EXTRACTION OF ENTITY PAGE ----------------------------------
 
-    public static function pageInfoExtraction($htmlFile, $url){
+    public static function pageInfoExtraction($htmlFile){
         $oDom = new DOMDocument();
         @$oDom->loadHtml($htmlFile);
 
@@ -138,6 +100,85 @@ class utilitiesACA
         }
 
         return $info;
+    }
+
+    //---------------------------------- EXTRACTION OF Top 100 by Score ----------------------------------
+
+    public static function extractByScore($htmlFile){
+        $entities = array();
+
+        $oDom = new DOMDocument();
+        @$oDom->loadHtml($htmlFile);
+
+        $collectionOfDivs = $oDom->getElementsByTagName('div');
+
+        foreach ($collectionOfDivs as $div){
+            if($div->getAttribute("class") === "browse_list_wrapper one browse-list-large"){
+                $div1To5 = $div;
+            }
+            if($div->getAttribute("class") === "browse_list_wrapper two browse-list-large"){
+                $div6To10 = $div;
+            }
+            if($div->getAttribute("class") === "browse_list_wrapper three browse-list-large"){
+                $div11To15 = $div;
+            }
+            if($div->getAttribute("class") === "browse_list_wrapper four browse-list-large"){
+                $div16To100 = $div;
+            }
+        }
+
+        $divElements = [$div1To5,$div6To10,$div11To15,$div16To100];
+
+        foreach ($divElements as $div){
+            $collectionOfTr = $div->getElementsByTagName("tr");
+            foreach($collectionOfTr as $tr){
+                if($tr->getAttribute("class") !== "spacer") {
+                    @$title = $tr->getElementsByTagName("h3")[0]->nodeValue;
+
+                    $photoUrl = $tr->getElementsByTagName("img")[0]->getAttribute("src");
+
+                    $url = $tr->getElementsByTagName("a")[0]->getAttribute("href");
+
+                    $divSearch = $tr->getElementsByTagName("div");
+                    foreach ($divSearch as $elem) {
+                        $class = $elem->getAttribute("class");
+                        if (strpos($class, "metascore_w large") === 0) {
+                            $score = $elem->nodeValue;
+                            break;
+                        }
+                    }
+
+                    foreach ($divSearch as $elem) {
+                        $class = $elem->getAttribute("class");
+                        if ($class === "summary") {
+                            $summary = $elem->nodeValue;
+                            break;
+                        }
+                    }
+
+                    $id = $tr->getElementsByTagName("input")[0]->getAttribute("id");
+
+                    $info = [
+                        "id" => $id,
+                        "url" => $url,
+                        "Title" => $title,
+                        "Score" => $score,
+                        "Summary" => trim($summary),
+                        "Photo" => $photoUrl
+                    ];
+
+                    $badChars = array("'", '"');
+                    $replacingChars = array("|", "/");
+                    foreach ($info as $key => $value) {
+                        $info[$key] = str_replace($badChars, $replacingChars, "$value");
+                    }
+                    $entities[$id] = $info;
+                }
+            }
+        }
+
+        return $entities;
+
     }
 
 }

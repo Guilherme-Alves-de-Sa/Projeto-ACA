@@ -1,18 +1,5 @@
 <?php
 
-//@mkdir ("./website/games.txt",
-//    0777, //irrelevant in Windows
-//    true);
-//@mkdir ("./website/movies.txt",
-//    0777, //irrelevant in Windows
-//    true);
-//@mkdir ("./website/tv-shows.txt",
-//    0777, //irrelevant in Windows
-//    true);
-//@mkdir ("./website/music.txt",
-//    0777, //irrelevant in Windows
-//    true);
-
 require_once "utilitiesACA.php";
 require_once "mySQL.php";
 
@@ -28,7 +15,11 @@ if(countOfArgs > 1){
         break;
         case "select": select();
         break;
+        case "topMovies": topMovies();
+        break;
         case "selectHelp" : selectHelp();
+        break;
+        case "new": testing();
         break;
         default: echo "Unknown argument\n";
         break;
@@ -45,57 +36,48 @@ function help(){
 }
 
 function selectHelp(){
-    echo "'php Main.php setup + *argument*'\n";
+    echo "'php Main.php select + *argument*'\n";
     echo "arguments:\nselect all -> shows contents of all tables\n";
+    echo "movies OR music OR games OR tv       followed by nothing -> shows each table contents by ID\n
+    \nOrder arguments:\n score";
 }
 
-function setup()
-{
+function setup(){
+    $urlConsumeMusic = "https://www.metacritic.com/browse/albums/release-date/new-releases/metascore";
+    $urlConsumeTV = "https://www.metacritic.com/browse/tv/release-date/new-series/metascore";
+    $urlConsumeMovies = "https://www.metacritic.com/browse/movies/release-date/theaters/metascore";
+    $urlConsumeGames = "https://www.metacritic.com/browse/games/release-date/new-releases/pc/metascore";
+
     $db = new mySQL();
     $db->install();
-
-    $urlConsume = "https://www.metacritic.com";
     $cURL = new utilitiesACA();
 
-    $website = $cURL->consumeURL($urlConsume); // consumes metacritic home page
-
-// extracts from the home page the links of the top movies, music, tv-shows and games
-    $entitiesInfo = $cURL->extractFromCode($website);
-
-    var_dump($entitiesInfo);
-
-// goes through each link extracted, they're separated by category (movie, music, tv and game)
-    foreach ($entitiesInfo as $entity) {
-
-        // goes through the links top 10 of each category
-        foreach ($entity as $page) {
-            $url = $urlConsume . $page; // base link + path to entity page
-            $pageHtml = $cURL->consumeURL($url); // consumes entity page
-            $pageInfo = $cURL->pageInfoExtraction($pageHtml, $page); // extracts the information the page
-
-
-            $title = $pageInfo["Title"];
-            $score = $pageInfo["Score"];
-            $summary = $pageInfo["Summary"];
-
-
-            if (strpos($page, "/tv/") !== false) {
-//            file_put_contents("website/tv-shows.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-                $db->insertTVshows($url, $title, $score, $summary);
-            } elseif (strpos($page, "/movie/") !== false) {
-//            file_put_contents("website/movies.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-                $db->insertMovies($url, $title, $score, $summary);
-            } elseif (strpos($page, "/music/") !== false) {
-//            file_put_contents("website/music.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-                $db->insertMusic($url, $title, $score, $summary);
-            } elseif (strpos($page, "/game/") !== false) {
-//            file_put_contents("website/games.txt", $title.PHP_EOL.$score.PHP_EOL.PHP_EOL.$summary.PHP_EOL.PHP_EOL, FILE_APPEND);
-                $db->insertGames($url, $title, $score, $summary);
-
-            }
-        }
+    $websiteMusic = $cURL->consumeURL($urlConsumeMusic); // consumes metacritic home page
+    $entitiesMusic = $cURL->extractByScore($websiteMusic);
+    foreach ($entitiesMusic as $music){
+        $db->insertMusic($music["id"], $music["url"], $music["Title"], $music["Score"], $music["Summary"], $music["Photo"]);
     }
+
+    $websiteTV = $cURL->consumeURL($urlConsumeTV); // consumes metacritic home page
+    $entitiesTV = $cURL->extractByScore($websiteTV);
+    foreach ($entitiesTV as $tv){
+        $db->insertTVshows($tv["id"], $tv["url"], $tv["Title"], $tv["Score"], $tv["Summary"], $tv["Photo"]);
+    }
+
+    $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes metacritic home page
+    $entitiesMovies = $cURL->extractByScore($websiteMovies);
+    foreach ($entitiesMovies as $movies){
+        $db->insertMovies($movies["id"], $movies["url"], $movies["Title"], $movies["Score"], $movies["Summary"], $movies["Photo"]);
+    }
+
+    $websiteGames = $cURL->consumeURL($urlConsumeGames); // consumes metacritic home page
+    $entitiesGames = $cURL->extractByScore($websiteGames);
+    foreach ($entitiesGames as $games){
+        $db->insertGames($games["id"], $games["url"], $games["Title"], $games["Score"], $games["Summary"], $games["Photo"]);
+    }
+
 }
+
 
 function select(){
     $db = new mySQL();
@@ -109,10 +91,28 @@ function select(){
                 $show = $db->selectAll();
                 break;
             case "movies":
-                $show = $db->selectAll()["Movies"];
-                break;
+                if(countOfArgs > 3) {
+                    switch (arrayOfArgs[3]) {
+                        case "score":
+                            $show =$db->selectWithOrder("ORDER BY score DESC", "metacritic_movies");
+                        break;
+                    }
+                }
+                else {
+                    $show = $db->selectAll()["Movies"];
+                }
+            break;
             case "tv":
-                $show = $db->selectAll()["TV Shows"];
+                if(countOfArgs > 3) {
+                    switch (arrayOfArgs[3]) {
+                        case "score":
+                            $show = $db->selectWithOrder("ORDER BY score DESC", "metacritic_tv_shows");
+                            break;
+                    }
+                }
+                else {
+                    $show = $db->selectAll()["TV Shows"];
+                }
                 break;
             case "games":
                 $show = $db->selectAll()["Games"];
@@ -133,7 +133,29 @@ function select(){
     }
 }
 
+function topMovies(){
+    @mkdir ("./movies",
+    0777, //irrelevant in Windows
+   true);
 
+    $db = new mySQL();
+    $db->install();
+    $cURL = new utilitiesACA();
+
+    $show = $db->selectWithOrder("ORDER BY score DESC", "metacritic_movies");
+
+    for($i = 0; $i < 10; $i++){
+        $file = $show[$i]["title"].".jpg";
+
+        $photo = $cURL->consumeUrl($show[$i]["photoUrl"]);
+
+        $replacingChars = array("'", '"');
+        $badChars = array("|", "/");
+        $file = str_replace($badChars, $replacingChars, $file);
+
+        file_put_contents("./movies/".$file, $photo);
+    }
+}
 
 
 // ***************************************************************************************

@@ -1,6 +1,6 @@
 <?php
 
-DEFINE("today",date("Ymd"));
+DEFINE("month",date("Ym"));
 
 class mySQL
 {
@@ -8,46 +8,50 @@ class mySQL
     const TABLE_TV_SHOWS = "metacritic_tv_shows";
     const TABLE_MUSIC = "metacritic_music";
     const TABLE_GAMES = "metacritic_games";
-    
-    const DEFAULT_SCHEMA = "metacritic".today;
+
+    const DEFAULT_SCHEMA = "metacritic".month;
 
     const CREATE_SCHEMA =
         "CREATE SCHEMA IF NOT EXISTS ".self::DEFAULT_SCHEMA.";";
 
     const CREATE_TABLE_MOVIES =
         "CREATE TABLE IF NOT EXISTS metacritic_movies(
-        _id INT NOT NULL AUTO_INCREMENT,
+        _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score INT NOT NULL,
+        score TEXT NOT NULL,
         summary TEXT NOT NULL,
+        photoUrl TEXT NOT NULL,
         PRIMARY KEY(_id));";
 
     const CREATE_TABLE_GAMES=
         "CREATE TABLE IF NOT EXISTS metacritic_games(
-        _id INT NOT NULL AUTO_INCREMENT,
+        _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score INT NOT NULL,
+        score TEXT NOT NULL,
         summary TEXT NOT NULL,
+        photoUrl TEXT NOT NULL,
         PRIMARY KEY(_id));";
 
     const CREATE_TABLE_MUSIC =
         "CREATE TABLE IF NOT EXISTS metacritic_music(
-        _id INT NOT NULL AUTO_INCREMENT,
+        _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score INT NOT NULL,
+        score TEXT NOT NULL,
         summary TEXT NOT NULL,
+        photoUrl TEXT NOT NULL,
         PRIMARY KEY(_id));";
 
     const CREATE_TABLE_TV_SHOWS =
         "CREATE TABLE IF NOT EXISTS metacritic_tv_shows(
-        _id INT NOT NULL AUTO_INCREMENT,
+        _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score INT NOT NULL,
+        score TEXT NOT NULL,
         summary TEXT NOT NULL,
+        photoUrl TEXT NOT NULL,
         PRIMARY KEY(_id));";
 
     private $mHost, $mUser, $mPass, $mPort, $mDataBase;
@@ -102,13 +106,14 @@ class mySQL
     }//errorFb
 
     public function insertMovies(
+        string $id,
         string $url,
         string $title,
         string $score,
-        string $summary
+        string $summary,
+        string $photoUrl
     ){
-        $q = "INSERT INTO metacritic_movies  VALUES (".
-            "null, '$url', '$title', '$score', '$summary');";
+        $q = "INSERT INTO metacritic_movies  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
 
         $this->mDb->query($q);
 
@@ -117,13 +122,14 @@ class mySQL
     }//insertUrl
 
     public function insertMusic(
+        string $id,
         string $url,
         string $title,
         string $score,
-        string $summary
+        string $summary,
+        string $photoUrl
     ){
-        $q = "INSERT INTO metacritic_music  VALUES (".
-            "null, '$url', '$title', '$score', '$summary');";
+        $q = "INSERT INTO metacritic_music  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
 
         $this->mDb->query($q);
 
@@ -132,13 +138,14 @@ class mySQL
     }//insertUrl
 
     public function insertGames(
+        string $id,
         string $url,
         string $title,
         string $score,
-        string $summary
+        string $summary,
+        string $photoUrl
     ){
-        $q = "INSERT INTO metacritic_games  VALUES (".
-            "null, '$url', '$title', '$score', '$summary');";
+        $q = "INSERT INTO metacritic_games  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
 
         $this->mDb->query($q);
 
@@ -147,13 +154,14 @@ class mySQL
     }//insertUrl
 
     public function insertTVshows(
+        string $id,
         string $url,
         string $title,
         string $score,
-        string $summary
+        string $summary,
+        string $photoUrl
     ){
-        $q = "INSERT INTO metacritic_tv_shows  VALUES (".
-            "null, '$url', '$title', '$score', '$summary');";
+        $q = "INSERT INTO metacritic_tv_shows  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
 
         $this->mDb->query($q);
 
@@ -243,6 +251,22 @@ class mySQL
 
         return $array;
     }//selectAll
+
+    public function selectWithOrder($argument, $table){
+        $q = "SELECT * FROM ".$table." ".$argument.";";
+
+        $res = $this->mDb->query($q);
+        $this->updateErrors();
+        $this->errorFb();
+
+        $array =
+            mysqli_fetch_all(
+                $res,
+                MYSQLI_ASSOC
+            );
+
+        return $array;
+    }
 
     public function selectFromMovies(){
 
