@@ -3,6 +3,7 @@
 require_once "utilitiesACA.php";
 require_once "mySQL.php";
 
+
 DEFINE("countOfArgs", $argc);
 DEFINE("arrayOfArgs", $argv);
 
@@ -15,11 +16,9 @@ if(countOfArgs > 1){
         break;
         case "select": select();
         break;
-        case "topMovies": topMovies();
+        case "topMovies": topMoviesPhotos();
         break;
         case "selectHelp" : selectHelp();
-        break;
-        case "new": testing();
         break;
         default: echo "Unknown argument\n";
         break;
@@ -52,25 +51,25 @@ function setup(){
     $db->install();
     $cURL = new utilitiesACA();
 
-    $websiteMusic = $cURL->consumeURL($urlConsumeMusic); // consumes metacritic home page
+    $websiteMusic = $cURL->consumeURL($urlConsumeMusic); // consumes music top 100
     $entitiesMusic = $cURL->extractByScore($websiteMusic);
     foreach ($entitiesMusic as $music){
         $db->insertMusic($music["id"], $music["url"], $music["Title"], $music["Score"], $music["Summary"], $music["Photo"]);
     }
 
-    $websiteTV = $cURL->consumeURL($urlConsumeTV); // consumes metacritic home page
+    $websiteTV = $cURL->consumeURL($urlConsumeTV); // consumes TV Shows top 100
     $entitiesTV = $cURL->extractByScore($websiteTV);
     foreach ($entitiesTV as $tv){
         $db->insertTVshows($tv["id"], $tv["url"], $tv["Title"], $tv["Score"], $tv["Summary"], $tv["Photo"]);
     }
 
-    $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes metacritic home page
+    $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes movies top 100
     $entitiesMovies = $cURL->extractByScore($websiteMovies);
     foreach ($entitiesMovies as $movies){
         $db->insertMovies($movies["id"], $movies["url"], $movies["Title"], $movies["Score"], $movies["Summary"], $movies["Photo"]);
     }
 
-    $websiteGames = $cURL->consumeURL($urlConsumeGames); // consumes metacritic home page
+    $websiteGames = $cURL->consumeURL($urlConsumeGames); // consumes games top 100
     $entitiesGames = $cURL->extractByScore($websiteGames);
     foreach ($entitiesGames as $games){
         $db->insertGames($games["id"], $games["url"], $games["Title"], $games["Score"], $games["Summary"], $games["Photo"]);
@@ -133,7 +132,7 @@ function select(){
     }
 }
 
-function topMovies(){
+function topMoviesPhotos(){
     @mkdir ("./movies",
     0777, //irrelevant in Windows
    true);
@@ -154,6 +153,7 @@ function topMovies(){
         $file = str_replace($badChars, $replacingChars, $file);
 
         file_put_contents("./movies/".$file, $photo);
+
     }
 }
 
