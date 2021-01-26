@@ -77,7 +77,6 @@ function setup(){
     // URL for parameters
     $urlConsumeGames = "https://www.metacritic.com/browse/games/release-date/available/pc/metascore?";
     $urlConsumeMovies = "https://www.metacritic.com/browse/movies/score/metascore/all/filtered?sort=desc&";
-    // METACRITIC URLS
     $urlConsumeTV = "https://www.metacritic.com/browse/tv/score/metascore/all/filtered?sort=desc&";
     $urlConsumeMusic = "https://www.metacritic.com/browse/albums/release-date/available/metascore?";
 
@@ -88,16 +87,17 @@ function setup(){
     // INITIALIZING CURL OBJECT FOR WEB CONSUMPTION
     $cURL = new utilitiesACA();
 
-//    // CONSUMING MUSIC AND INSERTING INTO DB
+    // CONSUMING MUSIC AND INSERTING INTO DB
     generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMusic, $urlConsumeMusic);
-//    // CONSUMING TV SHOWS AND INSERTING INTO DB
-    //generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupTvShows, $urlConsumeTV);
+
+    // CONSUMING TV SHOWS AND INSERTING INTO DB
+    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupTvShows, $urlConsumeTV);
 
     // CONSUMING MOVIES AND INSERTING INTO DB
-    //generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMovies, $urlConsumeMovies);
+    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMovies, $urlConsumeMovies);
 
     // CONSUMING GAMES AND INSERTING INTO DB
-    //generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupGames, $urlConsumeGames);
+    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupGames, $urlConsumeGames);
 
 }
 
@@ -106,18 +106,16 @@ function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
     $oDom = new DOMDocument();
     @$oDom->loadHtml($website);
 
-//    $li = "page last_page";
-        $numPage = "page=";
-//
-//    $myLi = $oDom->getElementsByTagName("li");
-//    foreach($myLi as $elem){
-//        if(strcmp($elem->getAttribute("class"), $li) === 0){
-//            $lastPage = $elem->getElementsByTagName("a")[0]->nodeValue;
-//            break;
-//        }
-//    }
+    $li = "page last_page";
+    $numPage = "page=";
+    $myLi = $oDom->getElementsByTagName("li");
 
-    $lastPage = 2;
+    foreach($myLi as $elem){
+       if(strcmp($elem->getAttribute("class"), $li) === 0){
+           $lastPage = $elem->getElementsByTagName("a")[0]->nodeValue;
+            break;
+        }
+    }
 
     for($i = 0; $i < $lastPage; $i++){
         $url = $pUrl.$numPage.$i;
@@ -127,36 +125,7 @@ function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
             $pFunction($db, $ent["id"], $ent["url"], $ent["Title"], $ent["Score"], $ent["Summary"], $ent["Photo"]);
         }
     }
-}
-
-
-
-function setupMovies($cURL, $db){
-    $urlConsumeMovies = "https://www.metacritic.com/browse/movies/score/metascore/all/filtered?sort=desc&";
-    $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes movies top 100
-    $oDom = new DOMDocument();
-    @$oDom->loadHtml($websiteMovies);
-
-    $li = "page last_page";
-    $numPage = "page=";
-
-    $myLi = $oDom->getElementsByTagName("li");
-    foreach($myLi as $elem){
-        if(strcmp($elem->getAttribute("class"), $li) === 0){
-            $lastPage = $elem->getElementsByTagName("a")[0]->nodeValue;
-            break;
-        }
-    }
-
-    for($i = 0; $i < $lastPage; $i++){
-        $url = $urlConsumeMovies.$numPage.$i;
-        $websiteMovies = $cURL->consumeURL($url);
-        $entitiesMovies = $cURL->extractByScore($websiteMovies);
-        foreach ($entitiesMovies as $movies) {
-            $db->insertMovies($movies["id"], $movies["url"], $movies["Title"], $movies["Score"], $movies["Summary"], $movies["Photo"]);
-        }
-    }
-}
+}//generalFunctionToConsumeAndInsert
 
 // CHECKING OPTIONS FOR SELECT
 function select(){
