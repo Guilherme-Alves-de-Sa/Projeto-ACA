@@ -104,7 +104,8 @@ class utilitiesACA
 
     //---------------------------------- EXTRACTION OF Top 100 by Score ----------------------------------
 
-    public static function extractByScore($htmlFile){
+    public static function extractByScore($htmlFile)
+    {
         $entities = array();
 
         $oDom = new DOMDocument();
@@ -112,27 +113,28 @@ class utilitiesACA
 
         $collectionOfDivs = $oDom->getElementsByTagName('div');
 
-        foreach ($collectionOfDivs as $div){
-            if($div->getAttribute("class") === "browse_list_wrapper one browse-list-large"){
+        foreach ($collectionOfDivs as $div) {
+            if ($div->getAttribute("class") === "browse_list_wrapper one browse-list-large") {
                 $div1To5 = $div;
             }
-            if($div->getAttribute("class") === "browse_list_wrapper two browse-list-large"){
+            if ($div->getAttribute("class") === "browse_list_wrapper two browse-list-large") {
                 $div6To10 = $div;
             }
-            if($div->getAttribute("class") === "browse_list_wrapper three browse-list-large"){
+            if ($div->getAttribute("class") === "browse_list_wrapper three browse-list-large") {
                 $div11To15 = $div;
             }
-            if($div->getAttribute("class") === "browse_list_wrapper four browse-list-large"){
+            if ($div->getAttribute("class") === "browse_list_wrapper four browse-list-large") {
                 $div16To100 = $div;
             }
         }
 
-        $divElements = [$div1To5,$div6To10,$div11To15,$div16To100];
+        $divElements = [$div1To5, $div6To10, $div11To15, $div16To100];
 
-        foreach ($divElements as $div){
+        foreach ($divElements as $div) {
+            if($div !== null){
             $collectionOfTr = $div->getElementsByTagName("tr");
-            foreach($collectionOfTr as $tr){
-                if($tr->getAttribute("class") !== "spacer") {
+            foreach ($collectionOfTr as $tr) {
+                if ($tr->getAttribute("class") !== "spacer") {
                     @$title = $tr->getElementsByTagName("h3")[0]->nodeValue;
 
                     $photoUrl = $tr->getElementsByTagName("img")[0]->getAttribute("src");
@@ -176,6 +178,7 @@ class utilitiesACA
                 }
             }
         }
+    }
 
         return $entities;
 

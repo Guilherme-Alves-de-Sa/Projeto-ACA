@@ -8,6 +8,9 @@ DEFINE("countOfArgs", $argc);
 DEFINE("arrayOfArgs", $argv);
 
 
+
+
+
 // CHECKING SECOND ARGUMENT, AFTER PHP FILE
 if(countOfArgs > 1){
 
@@ -18,7 +21,13 @@ if(countOfArgs > 1){
         break;
         case "select": select();
         break;
-        case "topMovies": topMoviesPhotos();
+        case "topMoviesPhotos": topMoviesPhotos();
+        break;
+        case "topMusicPhotos": topMusicPhotos();
+        break;
+        case "topGamesPhotos": topGamesPhotos();
+        break;
+        case "topTVPhotos": topTvShowsPhotos();
         break;
         case "selectHelp" : selectHelp();
         break;
@@ -47,11 +56,31 @@ function selectHelp(){
 
 // CONSUMES THE TOP 100 OF EACH ENTITY AND INSERTS THEM INTO THE DB
 function setup(){
+
+    // Functions for parameters
+    $insertSetupGames = function ($pDbConnection, $pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto){
+        $pDbConnection->insertGames($pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto);
+    };
+
+    $insertSetupMovies = function ($pDbConnection, $pMoviesID, $pMoviesUrl, $pMoviesTitle, $pMoviesScore, $pMoviesSummary, $pMoviesPhoto){
+        $pDbConnection->insertMovies($pMoviesID, $pMoviesUrl, $pMoviesTitle, $pMoviesScore, $pMoviesSummary, $pMoviesPhoto);
+    };
+
+    $insertSetupMusic = function ($pDbConnection, $pMusicID, $pMusicUrl, $pMusicTitle, $pMusicScore, $pMusicSummary, $pMusicPhoto){
+        $pDbConnection->insertMusic($pMusicID, $pMusicUrl, $pMusicTitle, $pMusicScore, $pMusicSummary, $pMusicPhoto);
+    };
+
+    $insertSetupTvShows = function ($pDbConnection, $pTvID, $pTvUrl, $pTvTitle, $pTvScore, $pTvSummary, $pTvPhoto){
+        $pDbConnection->insertTVshows($pTvID, $pTvUrl, $pTvTitle, $pTvScore, $pTvSummary, $pTvPhoto);
+    };
+
+    // URL for parameters
+    $urlConsumeGames = "https://www.metacritic.com/browse/games/release-date/available/pc/metascore?";
+    $urlConsumeMovies = "https://www.metacritic.com/browse/movies/score/metascore/all/filtered?sort=desc&";
     // METACRITIC URLS
-    $urlConsumeMusic = "https://www.metacritic.com/browse/albums/release-date/new-releases/metascore";
-    $urlConsumeTV = "https://www.metacritic.com/browse/tv/release-date/new-series/metascore";
-    $urlConsumeMovies = "https://www.metacritic.com/browse/movies/release-date/theaters/metascore";
-    $urlConsumeGames = "https://www.metacritic.com/browse/games/release-date/new-releases/pc/metascore";
+    $urlConsumeTV = "https://www.metacritic.com/browse/tv/score/metascore/all/filtered?sort=desc&";
+    $urlConsumeMusic = "https://www.metacritic.com/browse/albums/release-date/available/metascore?";
+
 
     // DB CONNECTOR AND INSTALLATION
     $db = new mySQL();
@@ -59,34 +88,74 @@ function setup(){
     // INITIALIZING CURL OBJECT FOR WEB CONSUMPTION
     $cURL = new utilitiesACA();
 
-    // CONSUMING MUSIC AND INSERTING INTO DB
-    $websiteMusic = $cURL->consumeURL($urlConsumeMusic); // consumes music top 100
-    $entitiesMusic = $cURL->extractByScore($websiteMusic);
-    foreach ($entitiesMusic as $music){
-        $db->insertMusic($music["id"], $music["url"], $music["Title"], $music["Score"], $music["Summary"], $music["Photo"]);
-    }
-
-    // CONSUMING TV SHOWS AND INSERTING INTO DB
-    $websiteTV = $cURL->consumeURL($urlConsumeTV); // consumes TV Shows top 100
-    $entitiesTV = $cURL->extractByScore($websiteTV);
-    foreach ($entitiesTV as $tv){
-        $db->insertTVshows($tv["id"], $tv["url"], $tv["Title"], $tv["Score"], $tv["Summary"], $tv["Photo"]);
-    }
+//    // CONSUMING MUSIC AND INSERTING INTO DB
+    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMusic, $urlConsumeMusic);
+//    // CONSUMING TV SHOWS AND INSERTING INTO DB
+    //generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupTvShows, $urlConsumeTV);
 
     // CONSUMING MOVIES AND INSERTING INTO DB
-    $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes movies top 100
-    $entitiesMovies = $cURL->extractByScore($websiteMovies);
-    foreach ($entitiesMovies as $movies){
-        $db->insertMovies($movies["id"], $movies["url"], $movies["Title"], $movies["Score"], $movies["Summary"], $movies["Photo"]);
-    }
+    //generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMovies, $urlConsumeMovies);
 
     // CONSUMING GAMES AND INSERTING INTO DB
-    $websiteGames = $cURL->consumeURL($urlConsumeGames); // consumes games top 100
-    $entitiesGames = $cURL->extractByScore($websiteGames);
-    foreach ($entitiesGames as $games){
-        $db->insertGames($games["id"], $games["url"], $games["Title"], $games["Score"], $games["Summary"], $games["Photo"]);
+    //generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupGames, $urlConsumeGames);
+
+}
+
+function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
+    $website = $cURL->consumeURL($pUrl); // consumes top 100
+    $oDom = new DOMDocument();
+    @$oDom->loadHtml($website);
+
+//    $li = "page last_page";
+        $numPage = "page=";
+//
+//    $myLi = $oDom->getElementsByTagName("li");
+//    foreach($myLi as $elem){
+//        if(strcmp($elem->getAttribute("class"), $li) === 0){
+//            $lastPage = $elem->getElementsByTagName("a")[0]->nodeValue;
+//            break;
+//        }
+//    }
+
+    $lastPage = 2;
+
+    for($i = 0; $i < $lastPage; $i++){
+        $url = $pUrl.$numPage.$i;
+        $website = $cURL->consumeURL($url);
+        $entities = $cURL->extractByScore($website);
+        foreach ($entities as $ent) {
+            $pFunction($db, $ent["id"], $ent["url"], $ent["Title"], $ent["Score"], $ent["Summary"], $ent["Photo"]);
+        }
+    }
+}
+
+
+
+function setupMovies($cURL, $db){
+    $urlConsumeMovies = "https://www.metacritic.com/browse/movies/score/metascore/all/filtered?sort=desc&";
+    $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes movies top 100
+    $oDom = new DOMDocument();
+    @$oDom->loadHtml($websiteMovies);
+
+    $li = "page last_page";
+    $numPage = "page=";
+
+    $myLi = $oDom->getElementsByTagName("li");
+    foreach($myLi as $elem){
+        if(strcmp($elem->getAttribute("class"), $li) === 0){
+            $lastPage = $elem->getElementsByTagName("a")[0]->nodeValue;
+            break;
+        }
     }
 
+    for($i = 0; $i < $lastPage; $i++){
+        $url = $urlConsumeMovies.$numPage.$i;
+        $websiteMovies = $cURL->consumeURL($url);
+        $entitiesMovies = $cURL->extractByScore($websiteMovies);
+        foreach ($entitiesMovies as $movies) {
+            $db->insertMovies($movies["id"], $movies["url"], $movies["Title"], $movies["Score"], $movies["Summary"], $movies["Photo"]);
+        }
+    }
 }
 
 // CHECKING OPTIONS FOR SELECT
@@ -170,12 +239,80 @@ function topMoviesPhotos(){
     }
 }
 
+// INSERTING TOP 10 MUSIC PHOTOS INTO FOLDER
+function topMusicPhotos(){
+    @mkdir ("./music",
+        0777, //irrelevant in Windows
+        true);
 
-// ***************************************************************************************
+    $db = new mySQL();
+    $db->install();
+    $cURL = new utilitiesACA();
 
-/*
- * span class="metascore_w medium movie mixed" - score
- * <table class="releases - tabelas
- *
- *
- */
+    $show = $db->selectWithOrder("ORDER BY score DESC", "metacritic_music");
+
+    for($i = 0; $i < 10; $i++){
+        $file = $show[$i]["title"].".jpg";
+
+        $photo = $cURL->consumeUrl($show[$i]["photoUrl"]);
+
+        $replacingChars = array("'", '"');
+        $badChars = array("|", "/");
+        $file = str_replace($badChars, $replacingChars, $file);
+
+        file_put_contents("./music/".$file, $photo);
+
+    }
+}
+
+// INSERTING TOP 10 GAMES PHOTOS INTO FOLDER
+function topGamesPhotos(){
+    @mkdir ("./games",
+        0777, //irrelevant in Windows
+        true);
+
+    $db = new mySQL();
+    $db->install();
+    $cURL = new utilitiesACA();
+
+    $show = $db->selectWithOrder("ORDER BY score DESC", "metacritic_games");
+
+    for($i = 0; $i < 10; $i++){
+        $file = $show[$i]["title"].".jpg";
+
+        $photo = $cURL->consumeUrl($show[$i]["photoUrl"]);
+
+        $replacingChars = array("'", '"', "_");
+        $badChars = array("|", "/", ":");
+        $file = str_replace($badChars, $replacingChars, $file);
+
+        file_put_contents("./games/".$file, $photo);
+
+    }
+}
+
+// INSERTING TOP 10 TV SHOWS' PHOTOS INTO FOLDER
+function topTvShowsPhotos(){
+    @mkdir ("./tv",
+        0777, //irrelevant in Windows
+        true);
+
+    $db = new mySQL();
+    $db->install();
+    $cURL = new utilitiesACA();
+
+    $show = $db->selectWithOrder("ORDER BY score DESC", "metacritic_tv_shows");
+
+    for($i = 0; $i < 10; $i++){
+        $file = $show[$i]["title"].".jpg";
+
+        $photo = $cURL->consumeUrl($show[$i]["photoUrl"]);
+
+        $replacingChars = array("'", '"');
+        $badChars = array("|", "/");
+        $file = str_replace($badChars, $replacingChars, $file);
+
+        file_put_contents("./tv/".$file, $photo);
+
+    }
+}
