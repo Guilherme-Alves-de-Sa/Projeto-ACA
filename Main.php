@@ -7,6 +7,8 @@ require_once "mySQL.php";
 DEFINE("countOfArgs", $argc);
 DEFINE("arrayOfArgs", $argv);
 
+
+// CHECKING SECOND ARGUMENT, AFTER PHP FILE
 if(countOfArgs > 1){
 
     switch (arrayOfArgs[1]){
@@ -27,6 +29,7 @@ if(countOfArgs > 1){
 }
 else help();
 
+// COMMAND LINE HELP
 function help(){
     echo "'php Main.php help'  ->   shows available arguments\n";
     echo "'php Main.php setup'  ->   setup of database\n";
@@ -34,6 +37,7 @@ function help(){
     echo "for list of select commands, do: 'php Main.php selectHelp\n";
 }
 
+// COMMAND LINE ARGUMENTS FOR SELECT
 function selectHelp(){
     echo "'php Main.php select + *argument*'\n";
     echo "arguments:\nselect all -> shows contents of all tables\n";
@@ -41,34 +45,42 @@ function selectHelp(){
     \nOrder arguments:\n score";
 }
 
+// CONSUMES THE TOP 100 OF EACH ENTITY AND INSERTS THEM INTO THE DB
 function setup(){
+    // METACRITIC URLS
     $urlConsumeMusic = "https://www.metacritic.com/browse/albums/release-date/new-releases/metascore";
     $urlConsumeTV = "https://www.metacritic.com/browse/tv/release-date/new-series/metascore";
     $urlConsumeMovies = "https://www.metacritic.com/browse/movies/release-date/theaters/metascore";
     $urlConsumeGames = "https://www.metacritic.com/browse/games/release-date/new-releases/pc/metascore";
 
+    // DB CONNECTOR AND INSTALLATION
     $db = new mySQL();
     $db->install();
+    // INITIALIZING CURL OBJECT FOR WEB CONSUMPTION
     $cURL = new utilitiesACA();
 
+    // CONSUMING MUSIC AND INSERTING INTO DB
     $websiteMusic = $cURL->consumeURL($urlConsumeMusic); // consumes music top 100
     $entitiesMusic = $cURL->extractByScore($websiteMusic);
     foreach ($entitiesMusic as $music){
         $db->insertMusic($music["id"], $music["url"], $music["Title"], $music["Score"], $music["Summary"], $music["Photo"]);
     }
 
+    // CONSUMING TV SHOWS AND INSERTING INTO DB
     $websiteTV = $cURL->consumeURL($urlConsumeTV); // consumes TV Shows top 100
     $entitiesTV = $cURL->extractByScore($websiteTV);
     foreach ($entitiesTV as $tv){
         $db->insertTVshows($tv["id"], $tv["url"], $tv["Title"], $tv["Score"], $tv["Summary"], $tv["Photo"]);
     }
 
+    // CONSUMING MOVIES AND INSERTING INTO DB
     $websiteMovies = $cURL->consumeURL($urlConsumeMovies); // consumes movies top 100
     $entitiesMovies = $cURL->extractByScore($websiteMovies);
     foreach ($entitiesMovies as $movies){
         $db->insertMovies($movies["id"], $movies["url"], $movies["Title"], $movies["Score"], $movies["Summary"], $movies["Photo"]);
     }
 
+    // CONSUMING GAMES AND INSERTING INTO DB
     $websiteGames = $cURL->consumeURL($urlConsumeGames); // consumes games top 100
     $entitiesGames = $cURL->extractByScore($websiteGames);
     foreach ($entitiesGames as $games){
@@ -77,7 +89,7 @@ function setup(){
 
 }
 
-
+// CHECKING OPTIONS FOR SELECT
 function select(){
     $db = new mySQL();
     $db->install();
@@ -132,6 +144,7 @@ function select(){
     }
 }
 
+// INSERTING TOP 10 MOVIE PHOTOS INTO FOLDER
 function topMoviesPhotos(){
     @mkdir ("./movies",
     0777, //irrelevant in Windows
