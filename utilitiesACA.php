@@ -135,6 +135,8 @@ class utilitiesACA
             $collectionOfTr = $div->getElementsByTagName("tr");
             foreach ($collectionOfTr as $tr) {
                 if (strcmp($tr->getAttribute("class"),"spacer") !== 0) {
+
+
                     @$title = $tr->getElementsByTagName("h3")[0]->nodeValue;
 
                     $photoUrl = $tr->getElementsByTagName("img")[0]->getAttribute("src");
@@ -150,6 +152,24 @@ class utilitiesACA
                         }
                     }
 
+                    // DATE
+                    foreach ($divSearch as $elem) {
+                        $class = $elem->getAttribute("class");
+                        if (strpos($class, "clamp-details") === 0) {
+                            $var = $elem->getElementsByTagName("span");
+                            if(strcmp($var[0]->nodeValue, "Platform:") === 0)
+                                $dateString = $var[2]->nodeValue;
+                            else
+                                $dateString = $var[0]->nodeValue;
+                            break;
+                        }
+                    }
+                    if(strcmp($dateString,"TBA") === 0) {
+                        $dateString = "January 1, 0000";
+                    }
+                    $myDateTime = DateTime::createFromFormat('F d, Y', $dateString);
+                    $myDateTime = date_format($myDateTime,"Y/m/d");
+
                     foreach ($divSearch as $elem) {
                         $class = $elem->getAttribute("class");
                         if (strcmp($class,"summary") === 0) {
@@ -160,18 +180,22 @@ class utilitiesACA
 
                     $id = $tr->getElementsByTagName("input")[0]->getAttribute("id");
 
+
+
                     $info = [
                         "id" => $id,
                         "url" => $url,
                         "Title" => $title,
                         "Score" => $score,
                         "Summary" => trim($summary),
-                        "Photo" => $photoUrl
+                        "Photo" => $photoUrl,
+                        "Date" => $myDateTime
                     ];
 
                     $badChars = array("'", '"');
                     $replacingChars = array("|", "/");
                     foreach ($info as $key => $value) {
+                        if(strcmp($key, "Date")!==0)
                         $info[$key] = str_replace($badChars, $replacingChars, "$value");
                     }
                     $entities[$id] = $info;

@@ -3,26 +3,30 @@
 require_once "utilitiesACA.php";
 require_once "mySQL.php";
 
+$classMain = new Main();
+
+$classMain->setup();
+
 class Main{
 
 // CONSUMES THE TOP 100 OF EACH ENTITY AND INSERTS THEM INTO THE DB
 public function setup(){
 
     // Functions for parameters
-    $insertSetupGames = function ($pDbConnection, $pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto){
-        $pDbConnection->insertGames($pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto);
+    $insertSetupGames = function ($pDbConnection, $pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto, $pGameDate){
+        $pDbConnection->insertGames($pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto, $pGameDate);
     };
 
-    $insertSetupMovies = function ($pDbConnection, $pMoviesID, $pMoviesUrl, $pMoviesTitle, $pMoviesScore, $pMoviesSummary, $pMoviesPhoto){
-        $pDbConnection->insertMovies($pMoviesID, $pMoviesUrl, $pMoviesTitle, $pMoviesScore, $pMoviesSummary, $pMoviesPhoto);
+    $insertSetupMovies = function ($pDbConnection, $pMoviesID, $pMoviesUrl, $pMoviesTitle, $pMoviesScore, $pMoviesSummary, $pMoviesPhoto, $pMoviesDate){
+        $pDbConnection->insertMovies($pMoviesID, $pMoviesUrl, $pMoviesTitle, $pMoviesScore, $pMoviesSummary, $pMoviesPhoto, $pMoviesDate);
     };
 
-    $insertSetupMusic = function ($pDbConnection, $pMusicID, $pMusicUrl, $pMusicTitle, $pMusicScore, $pMusicSummary, $pMusicPhoto){
-        $pDbConnection->insertMusic($pMusicID, $pMusicUrl, $pMusicTitle, $pMusicScore, $pMusicSummary, $pMusicPhoto);
+    $insertSetupMusic = function ($pDbConnection, $pMusicID, $pMusicUrl, $pMusicTitle, $pMusicScore, $pMusicSummary, $pMusicPhoto, $pMusicDate){
+        $pDbConnection->insertMusic($pMusicID, $pMusicUrl, $pMusicTitle, $pMusicScore, $pMusicSummary, $pMusicPhoto,$pMusicDate);
     };
 
-    $insertSetupTvShows = function ($pDbConnection, $pTvID, $pTvUrl, $pTvTitle, $pTvScore, $pTvSummary, $pTvPhoto){
-        $pDbConnection->insertTVshows($pTvID, $pTvUrl, $pTvTitle, $pTvScore, $pTvSummary, $pTvPhoto);
+    $insertSetupTvShows = function ($pDbConnection, $pTvID, $pTvUrl, $pTvTitle, $pTvScore, $pTvSummary, $pTvPhoto, $pTvDate){
+        $pDbConnection->insertTVshows($pTvID, $pTvUrl, $pTvTitle, $pTvScore, $pTvSummary, $pTvPhoto,$pTvDate);
     };
 
     // URL for parameters
@@ -39,20 +43,20 @@ public function setup(){
     $cURL = new utilitiesACA();
 
     // CONSUMING MUSIC AND INSERTING INTO DB
-    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMusic, $urlConsumeMusic);
+    $this->generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMusic, $urlConsumeMusic);
 
     // CONSUMING TV SHOWS AND INSERTING INTO DB
-    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupTvShows, $urlConsumeTV);
+    $this->generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupTvShows, $urlConsumeTV);
 
     // CONSUMING MOVIES AND INSERTING INTO DB
-    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMovies, $urlConsumeMovies);
+    $this->generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMovies, $urlConsumeMovies);
 
     // CONSUMING GAMES AND INSERTING INTO DB
-    generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupGames, $urlConsumeGames);
+    $this->generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupGames, $urlConsumeGames);
 
 }
 
-public function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
+private function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
     $website = $cURL->consumeURL($pUrl); // consumes top 100
     $oDom = new DOMDocument();
     @$oDom->loadHtml($website);
@@ -68,12 +72,14 @@ public function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl)
         }
     }
 
+    $lastPage = 1;
+
     for($i = 0; $i < $lastPage; $i++){
         $url = $pUrl.$numPage.$i;
         $website = $cURL->consumeURL($url);
         $entities = $cURL->extractByScore($website);
         foreach ($entities as $ent) {
-            $pFunction($db, $ent["id"], $ent["url"], $ent["Title"], $ent["Score"], $ent["Summary"], $ent["Photo"]);
+            $pFunction($db, $ent["id"], $ent["url"], $ent["Title"], $ent["Score"], $ent["Summary"], $ent["Photo"], $ent["Date"]);
         }
     }
 }//generalFunctionToConsumeAndInsert
@@ -83,7 +89,17 @@ public function select(){
     $db = new mySQL();
     $db->install();
 
-    return $db->selectWithOrder("ORDER BY score ASC limit 100", "metacritic_movies");
+    $dbResultAssoc = $db->selectWithOrder("ORDER BY score DESC limit 100", "metacritic_movies");
+
+//    foreach ($dbResultAssoc as $ent){
+////        $replacingChars = array("'", '"');
+////        $badChars = array("|", "/");
+////        foreach ($ent as $key => $value){
+////            $key[$value] = str_replace($badChars, $replacingChars, $value);
+////        }
+////    }
+
+    return $dbResultAssoc;
 }
 
 // INSERTING TOP 10 MOVIE PHOTOS INTO FOLDER

@@ -19,9 +19,10 @@ class mySQL
         _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score TEXT NOT NULL,
+        score INT NOT NULL,
         summary TEXT NOT NULL,
         photoUrl TEXT NOT NULL,
+        datePublish DATE,
         PRIMARY KEY(_id));";
 
     const CREATE_TABLE_GAMES=
@@ -29,9 +30,10 @@ class mySQL
         _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score TEXT NOT NULL,
+        score INT NOT NULL,
         summary TEXT NOT NULL,
         photoUrl TEXT NOT NULL,
+        datePublish DATE,
         PRIMARY KEY(_id));";
 
     const CREATE_TABLE_MUSIC =
@@ -39,9 +41,10 @@ class mySQL
         _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score TEXT NOT NULL,
+        score INT NOT NULL,
         summary TEXT NOT NULL,
         photoUrl TEXT NOT NULL,
+        datePublish DATE,
         PRIMARY KEY(_id));";
 
     const CREATE_TABLE_TV_SHOWS =
@@ -49,9 +52,10 @@ class mySQL
         _id INT NOT NULL,
         url TEXT NOT NULL,
         title TEXT NOT NULL,
-        score TEXT NOT NULL,
+        score INT NOT NULL,
         summary TEXT NOT NULL,
         photoUrl TEXT NOT NULL,
+        datePublish DATE,
         PRIMARY KEY(_id));";
 
     private $mHost, $mUser, $mPass, $mPort, $mDataBase;
@@ -109,11 +113,13 @@ class mySQL
         string $id,
         string $url,
         string $title,
-        string $score,
+        int $score,
         string $summary,
-        string $photoUrl
+        string $photoUrl,
+        string $datePublish
     ){
-        $q = "INSERT INTO metacritic_movies  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
+        if(!is_int($score)) $score = 0;
+        $q = "INSERT INTO metacritic_movies  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl', '$datePublish');";
 
         $this->mDb->query($q);
 
@@ -125,11 +131,13 @@ class mySQL
         string $id,
         string $url,
         string $title,
-        string $score,
+        int $score,
         string $summary,
-        string $photoUrl
+        string $photoUrl,
+        string $datePublish
     ){
-        $q = "INSERT INTO metacritic_music  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
+        if(!is_int($score)) $score = 0;
+        $q = "INSERT INTO metacritic_music  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl', '$datePublish');";
 
         $this->mDb->query($q);
 
@@ -141,11 +149,13 @@ class mySQL
         string $id,
         string $url,
         string $title,
-        string $score,
+        int $score,
         string $summary,
-        string $photoUrl
+        string $photoUrl,
+        string $datePublish
     ){
-        $q = "INSERT INTO metacritic_games  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
+        if(!is_int($score)) $score = 0;
+        $q = "INSERT INTO metacritic_games  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl', '$datePublish');";
 
         $this->mDb->query($q);
 
@@ -157,11 +167,13 @@ class mySQL
         string $id,
         string $url,
         string $title,
-        string $score,
+        int $score,
         string $summary,
-        string $photoUrl
+        string $photoUrl,
+        string $datePublish
     ){
-        $q = "INSERT INTO metacritic_tv_shows  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl');";
+        if(!is_int($score)) $score = 0;
+        $q = "INSERT INTO metacritic_tv_shows  VALUES ('$id', '$url', '$title', '$score', '$summary', '$photoUrl', '$datePublish');";
 
         $this->mDb->query($q);
 
