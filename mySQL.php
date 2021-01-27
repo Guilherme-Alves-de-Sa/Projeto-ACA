@@ -61,7 +61,7 @@ class mySQL
 
     const DEFAULT_HOST = "localhost";
     const DEFAULT_USER = "root";
-    const DEFAULT_PASS = "UkX!#s36>BE-w#4}";
+    const DEFAULT_PASS = "";
     const DEFAULT_PORT = 3306;
 
     public function __construct(){
