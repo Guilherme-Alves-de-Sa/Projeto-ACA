@@ -9,53 +9,10 @@ DEFINE("arrayOfArgs", $argv);
 
 
 
-
-
-// CHECKING SECOND ARGUMENT, AFTER PHP FILE
-if(countOfArgs > 1){
-
-    switch (arrayOfArgs[1]){
-        case "help": help();
-        break;
-        case "setup": setup();
-        break;
-        case "select": select();
-        break;
-        case "topMoviesPhotos": topMoviesPhotos();
-        break;
-        case "topMusicPhotos": topMusicPhotos();
-        break;
-        case "topGamesPhotos": topGamesPhotos();
-        break;
-        case "topTVPhotos": topTvShowsPhotos();
-        break;
-        case "selectHelp" : selectHelp();
-        break;
-        default: echo "Unknown argument\n";
-        break;
-    }
-
-}
-else help();
-
-// COMMAND LINE HELP
-function help(){
-    echo "'php Main.php help'  ->   shows available arguments\n";
-    echo "'php Main.php setup'  ->   setup of database\n";
-    echo "'php Main.php select *no more arguments*'  ->   select all from db\n";
-    echo "for list of select commands, do: 'php Main.php selectHelp\n";
-}
-
-// COMMAND LINE ARGUMENTS FOR SELECT
-function selectHelp(){
-    echo "'php Main.php select + *argument*'\n";
-    echo "arguments:\nselect all -> shows contents of all tables\n";
-    echo "movies OR music OR games OR tv       followed by nothing -> shows each table contents by ID\n
-    \nOrder arguments:\n score";
-}
+class Main{
 
 // CONSUMES THE TOP 100 OF EACH ENTITY AND INSERTS THEM INTO THE DB
-function setup(){
+public function setup(){
 
     // Functions for parameters
     $insertSetupGames = function ($pDbConnection, $pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto){
@@ -101,7 +58,7 @@ function setup(){
 
 }
 
-function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
+public function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
     $website = $cURL->consumeURL($pUrl); // consumes top 100
     $oDom = new DOMDocument();
     @$oDom->loadHtml($website);
@@ -128,62 +85,15 @@ function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl){
 }//generalFunctionToConsumeAndInsert
 
 // CHECKING OPTIONS FOR SELECT
-function select(){
+public function select(){
     $db = new mySQL();
     $db->install();
 
-    $show = null;
-
-    if(countOfArgs > 2) {
-        switch (arrayOfArgs[2]) {
-            case "all":
-                $show = $db->selectAll();
-                break;
-            case "movies":
-                if(countOfArgs > 3) {
-                    switch (arrayOfArgs[3]) {
-                        case "score":
-                            $show =$db->selectWithOrder("ORDER BY score DESC", "metacritic_movies");
-                        break;
-                    }
-                }
-                else {
-                    $show = $db->selectAll()["Movies"];
-                }
-            break;
-            case "tv":
-                if(countOfArgs > 3) {
-                    switch (arrayOfArgs[3]) {
-                        case "score":
-                            $show = $db->selectWithOrder("ORDER BY score DESC", "metacritic_tv_shows");
-                            break;
-                    }
-                }
-                else {
-                    $show = $db->selectAll()["TV Shows"];
-                }
-                break;
-            case "games":
-                $show = $db->selectAll()["Games"];
-                break;
-            case "music":
-                $show = $db->selectAll()["Music"];
-                break;
-            default:
-                selectHelp();
-                break;
-        }
-    }
-    else
-        $show = $db->selectAll();
-
-    if($show !== null){
-        var_dump($show);
-    }
+    return $db->selectWithOrder("ORDER BY score DESC limit 3000", "metacritic_movies");
 }
 
 // INSERTING TOP 10 MOVIE PHOTOS INTO FOLDER
-function topMoviesPhotos(){
+public function topMoviesPhotos(){
     @mkdir ("./movies",
     0777, //irrelevant in Windows
    true);
@@ -209,7 +119,7 @@ function topMoviesPhotos(){
 }
 
 // INSERTING TOP 10 MUSIC PHOTOS INTO FOLDER
-function topMusicPhotos(){
+public function topMusicPhotos(){
     @mkdir ("./music",
         0777, //irrelevant in Windows
         true);
@@ -235,7 +145,7 @@ function topMusicPhotos(){
 }
 
 // INSERTING TOP 10 GAMES PHOTOS INTO FOLDER
-function topGamesPhotos(){
+public function topGamesPhotos(){
     @mkdir ("./games",
         0777, //irrelevant in Windows
         true);
@@ -261,7 +171,7 @@ function topGamesPhotos(){
 }
 
 // INSERTING TOP 10 TV SHOWS' PHOTOS INTO FOLDER
-function topTvShowsPhotos(){
+public function topTvShowsPhotos(){
     @mkdir ("./tv",
         0777, //irrelevant in Windows
         true);
@@ -284,4 +194,5 @@ function topTvShowsPhotos(){
         file_put_contents("./tv/".$file, $photo);
 
     }
+}
 }
