@@ -227,13 +227,13 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
 
         $data = $Main->select($table, $order, $col, $limit);
 
-        echo '<h1>'.$table.'</h1>
-<table
-    <tbody >';
+        echo '<h1>'.$table.'</h1>';
 
     foreach ($data as $rows) {
         echo
-        '<tr >
+        '<table
+        <tbody >
+        <tr >
         <td > Photo</td >
         <td > ID</td >
         <td > URL</td >
@@ -248,6 +248,10 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
                 echo "<td>" . $value . "</td>";
             }
         }
+        echo '</table
+        </tbody>';
+        echo '<div >'.$rows["summary"].'</div>';
+        echo '<br> <br>';
     }
     }
     echo '</div>';

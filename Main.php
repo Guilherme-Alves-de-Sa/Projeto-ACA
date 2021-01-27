@@ -68,8 +68,6 @@ private function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl
         }
     }
 
-    $lastPage = 1;
-
     for($i = 0; $i < $lastPage; $i++){
         $url = $pUrl.$numPage.$i;
         $website = $cURL->consumeURL($url);
