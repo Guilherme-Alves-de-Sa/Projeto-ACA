@@ -20,9 +20,16 @@ $data = $classMain->select();
     <?php foreach ($data as $rows) :?>
         <tr class="item_row">
             <?php
+            echo "<td><img src=".$rows['photoUrl']."></td>";
+            ?>
+            <?php
             $total = 0;
             foreach ($rows as $key => $value) : ?>
-                <td> <?php echo $value ?></td>
+            <?php
+                if(strcmp($key, "photoUrl") !== 0) {
+                    echo "<td>" . $value . "</td>";
+                }
+                  ?>
             <?php endforeach;?>
         </tr>
     <?php endforeach;?>

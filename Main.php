@@ -3,12 +3,6 @@
 require_once "utilitiesACA.php";
 require_once "mySQL.php";
 
-
-DEFINE("countOfArgs", $argc);
-DEFINE("arrayOfArgs", $argv);
-
-
-
 class Main{
 
 // CONSUMES THE TOP 100 OF EACH ENTITY AND INSERTS THEM INTO THE DB
@@ -89,7 +83,7 @@ public function select(){
     $db = new mySQL();
     $db->install();
 
-    return $db->selectWithOrder("ORDER BY score DESC limit 3000", "metacritic_movies");
+    return $db->selectWithOrder("ORDER BY score ASC limit 100", "metacritic_movies");
 }
 
 // INSERTING TOP 10 MOVIE PHOTOS INTO FOLDER

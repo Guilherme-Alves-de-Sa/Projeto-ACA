@@ -259,13 +259,7 @@ class mySQL
         $this->updateErrors();
         $this->errorFb();
 
-        $array =
-            mysqli_fetch_all(
-                $res,
-                MYSQLI_ASSOC
-            );
-
-        return $array;
+        return mysqli_fetch_all($res, MYSQLI_ASSOC);
     }
 
     public function selectFromMovies(){
