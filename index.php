@@ -1,4 +1,9 @@
-<?php    ?>
+<?php   require_once "Main.php";
+
+$Main = new Main();
+$doYouNeedDataBaseSetup = $Main->registsExist();
+
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,7 +32,7 @@
             font-weight: 400;
         }
         span {
-            color: red;
+            color: #ff0000;
         }
         .small {
             font-size: 10px;
@@ -161,56 +166,92 @@
     </style>
 </head>
 <body>
-<form
+<?php if($doYouNeedDataBaseSetup){
+    echo
+'<form
         method="get"
         enctype="application/x-www-form-urlencoded"
         action="setup.php"
 >
     <input type="submit" value="SETUP SERVER">
-</form>
+</form>';
+}?>
 <div class="testbox">
-    <form action="/">
+    <form name="actionPost" method="post">
         <h4>Table<span>*</span></h4>
         <div class="title-block">
-            <select>
-                <option value="games" selected>Games</option>
-                <option value="movies">Movies</option>
-                <option value="music">Albums</option>
-                <option value="tv">TV Shows</option>
+            <select name="table">
+                <option value="metacritic_games" selected>Games</option>
+                <option value="metacritic_movies">Movies</option>
+                <option value="metacritic_music">Albums</option>
+                <option value="metacritic_tv_shows">TV Shows</option>
             </select>
         </div>
-        <h4>Order By</h4>
+        <h4>Order</h4>
         <div class="title-block">
-            <select>
+            <select name="order">
+                <option value="DESC" selected>DESC</option>
+                <option value="ASC">ASC</option>
+            </select>
+        </div>
+        <h4>By<span></span></h4>
+        <div class="title-block">
+            <select name="col">
                 <option value="score" selected>Score</option>
                 <option value="title">Title</option>
+                <option value="datePublish">Title</option>
             </select>
         </div>
-        <h4>Name<span>*</span></h4>
+        <h4>Number of Rows<span></span></h4>
         <div class="title-block">
-            <select>
-                <option value="title" selected>Title</option>
-                <option value="ms">Ms</option>
-                <option value="miss">Miss</option>
-                <option value="mrs">Mrs</option>
-                <option value="mr">Mr</option>
+            <select name="limit">
+                <option value="10" selected>10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
             </select>
         </div>
-        <h4>Email Address<span>*</span></h4>
-        <input type="text" name="name" />
-        <h4>Contact Number<span>*</span></h4>
-        <input type="text" name="name"/>
-        <h4>Name of Staff who served me</h4>
-        <input type="text" name="name"/>
-        <h4>Branch visited</h4>
-        <input type="text" name="name"/>
-        <h4>Feedback/Enquiry</h4>
-        <p class="small">Please do not indicate your account or credit card number and banking instruction in your comments. Thank you for your time and valuable feedback.</p>
-            <textarea rows="5"></textarea>
         <div class="btn-block">
-            <button type="submit" href="/">Send Feedback</button>
+            <button type="submit">Get List</button>
         </div>
     </form>
 </div>
+    <?php
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        echo '<div>';
+        // collect value of input field
+        $table = $_POST['table'];
+        $order = $_POST['order'];
+        $col = $_POST['col'];
+        $limit = $_POST['limit'];
+
+        $data = $Main->select($table, $order, $col, $limit);
+
+        echo '<h1>'.$table.'</h1>
+<table
+    <tbody >';
+
+    foreach ($data as $rows) {
+        echo
+        '<tr >
+        <td > Photo</td >
+        <td > ID</td >
+        <td > URL</td >
+        <td > Title</td >
+        <td > Score</td >
+        <td > Publish Date</td >
+    </tr >
+    <tr  >';
+        echo "<td><img src=".$rows['photoUrl']."></td>";
+        foreach ($rows as $key => $value){
+            if(strcmp($key, "photoUrl") !== 0 && strcmp($key, "summary") !== 0) {
+                echo "<td>" . $value . "</td>";
+            }
+        }
+    }
+    }
+    echo '</div>';
+    ?>
+
 </body>
 </html>

@@ -3,14 +3,17 @@
 require_once "utilitiesACA.php";
 require_once "mySQL.php";
 
-$classMain = new Main();
-
-$classMain->setup();
-
 class Main{
 
 // CONSUMES THE TOP 100 OF EACH ENTITY AND INSERTS THEM INTO THE DB
 public function setup(){
+
+    // DB CONNECTOR AND INSTALLATION
+    $db = new mySQL();
+    $db->install();
+
+    // INITIALIZING CURL OBJECT FOR WEB CONSUMPTION
+    $cURL = new utilitiesACA();
 
     // Functions for parameters
     $insertSetupGames = function ($pDbConnection, $pGameID, $pGameUrl, $pGameTitle, $pGameScore, $pGameSummary, $pGamePhoto, $pGameDate){
@@ -34,13 +37,6 @@ public function setup(){
     $urlConsumeMovies = "https://www.metacritic.com/browse/movies/score/metascore/all/filtered?sort=desc&";
     $urlConsumeTV = "https://www.metacritic.com/browse/tv/score/metascore/all/filtered?sort=desc&";
     $urlConsumeMusic = "https://www.metacritic.com/browse/albums/release-date/available/metascore?";
-
-
-    // DB CONNECTOR AND INSTALLATION
-    $db = new mySQL();
-    $db->install();
-    // INITIALIZING CURL OBJECT FOR WEB CONSUMPTION
-    $cURL = new utilitiesACA();
 
     // CONSUMING MUSIC AND INSERTING INTO DB
     $this->generalFunctionToConsumeAndInsert($cURL, $db, $insertSetupMusic, $urlConsumeMusic);
@@ -85,21 +81,20 @@ private function generalFunctionToConsumeAndInsert($cURL, $db, $pFunction, $pUrl
 }//generalFunctionToConsumeAndInsert
 
 // CHECKING OPTIONS FOR SELECT
-public function select(){
+public function select($table, $order, $col, $limit){
     $db = new mySQL();
     $db->install();
 
-    $dbResultAssoc = $db->selectWithOrder("ORDER BY score DESC limit 100", "metacritic_movies");
+    $argument = "ORDER BY ".$col." ".$order." limit ".$limit;
 
-//    foreach ($dbResultAssoc as $ent){
-////        $replacingChars = array("'", '"');
-////        $badChars = array("|", "/");
-////        foreach ($ent as $key => $value){
-////            $key[$value] = str_replace($badChars, $replacingChars, $value);
-////        }
-////    }
+    $dbResultAssoc = $db->selectWithOrder($argument, $table);
 
     return $dbResultAssoc;
+}
+
+public function registsExist(){
+    $db = new mySQL();
+    return $db->registsExist();
 }
 
 // INSERTING TOP 10 MOVIE PHOTOS INTO FOLDER

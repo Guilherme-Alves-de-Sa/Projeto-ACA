@@ -109,6 +109,10 @@ class mySQL
         }
     }//errorFb
 
+    public function registsExist(){
+        return !$this->mDb->select_db(self::DEFAULT_SCHEMA);
+    }
+
     public function insertMovies(
         string $id,
         string $url,
