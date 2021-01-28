@@ -1,7 +1,5 @@
 <?php
 
-DEFINE("month",date("Ym"));
-
 class mySQL
 {
     const TABLE_MOVIES = "metacritic_movies";
@@ -9,7 +7,7 @@ class mySQL
     const TABLE_MUSIC = "metacritic_music";
     const TABLE_GAMES = "metacritic_games";
 
-    const DEFAULT_SCHEMA = "metacritic".month;
+    const DEFAULT_SCHEMA = "metacritic";
 
     const CREATE_SCHEMA =
         "CREATE SCHEMA IF NOT EXISTS ".self::DEFAULT_SCHEMA.";";
@@ -62,6 +60,7 @@ class mySQL
     private $mLastErrorCode, $mLastErrorMsg;
     private $mErrorCodes, $mErrorMsgs;
     private $mDb; //fundamental!
+    private $count = 0;
 
     const DEFAULT_HOST = "localhost";
     const DEFAULT_USER = "root";
@@ -129,6 +128,8 @@ class mySQL
 
         $this->updateErrors();
         $this->errorFb();
+        $this->count++;
+        if($this->count % 100 === 0) echo $this->count." *on movies*\n";
     }//insertUrl
 
     public function insertMusic(
@@ -147,6 +148,8 @@ class mySQL
 
         $this->updateErrors();
         $this->errorFb();
+        $this->count++;
+        if($this->count % 100 === 0) echo $this->count." *on music*\n";
     }//insertUrl
 
     public function insertGames(
@@ -165,6 +168,8 @@ class mySQL
 
         $this->updateErrors();
         $this->errorFb();
+        $this->count++;
+        if($this->count % 100 === 0) echo $this->count." *on games*\n";
     }//insertUrl
 
     public function insertTVshows(
@@ -183,6 +188,8 @@ class mySQL
 
         $this->updateErrors();
         $this->errorFb();
+        $this->count++;
+        if($this->count % 100 === 0) echo $this->count." *on tv shows*\n";
     }//insertUrl
 
     public function install(){

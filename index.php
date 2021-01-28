@@ -1,7 +1,9 @@
 <?php   require_once "Main.php";
 
 $Main = new Main();
-$doYouNeedDataBaseSetup = $Main->registsExist();
+$page = 1;
+$end = 0;
+$beggining = 0;
 
 ?>
 <!DOCTYPE html>
@@ -132,7 +134,7 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
             text-align: center;
         }
         button {
-            width: 150px;
+            width: 40px;
             padding: 10px;
             border: none;
             -webkit-border-radius: 5px;
@@ -143,9 +145,11 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
             color: #fff;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #0666a3;
         }
+
         @media (min-width: 568px) {
             .title-block {
                 display: flex;
@@ -166,16 +170,6 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
     </style>
 </head>
 <body>
-<?php if($doYouNeedDataBaseSetup){
-    echo
-'<form
-        method="get"
-        enctype="application/x-www-form-urlencoded"
-        action="setup.php"
->
-    <input type="submit" value="SETUP SERVER">
-</form>';
-}?>
 <div class="testbox">
     <form name="actionPost" method="post">
         <h4>Table<span>*</span></h4>
@@ -199,39 +193,62 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
             <select name="col">
                 <option value="score" selected>Score</option>
                 <option value="title">Title</option>
-                <option value="datePublish">Title</option>
+                <option value="datePublish">Date</option>
             </select>
         </div>
         <h4>Number of Rows<span></span></h4>
         <div class="title-block">
             <select name="limit">
-                <option value="10" selected>10</option>
+                <option value="100" selected>100</option>
                 <option value="25">25</option>
                 <option value="50">50</option>
                 <option value="100">100</option>
             </select>
         </div>
         <div class="btn-block">
-            <button type="submit">Get List</button>
+            <button style="width: 150px" type="submit">Get List</button>
         </div>
+
     </form>
 </div>
+
     <?php
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo '<div>';
-        // collect value of input field
-        $table = $_POST['table'];
-        $order = $_POST['order'];
-        $col = $_POST['col'];
-        $limit = $_POST['limit'];
+            $table = $_POST['table'];
+            $order = $_POST['order'];
+            $col = $_POST['col'];
+            $limit = $_POST['limit'];
+            $data = $Main->select($table, $order, $col);
+        echo '
+<div class="testbox">
+<div class="btn-block">
+            <form method="post">';
+            for($j = 0; $j < count($data) / $limit; $j++){
+                echo '<button name='.$j.' type="submit" value='.$j.'>'.$j.'</button>';
+            }
+            echo '
+<input hidden value="'.$limit.' " name="limit"/>
+<input hidden value="'.$col.' "name="col"/>
+<input hidden value="'.$table.' "name="table"/>
+<input hidden value="'.$order.' "name="order"/>
+</form>
+        </div></div>';
+            echo '<h1>' . $table . '</h1>';
+            $start = 0;
+            if(count($_POST) > 4){
+                foreach ($_POST as $post){
+                    if(strcmp($post,$limit) !== 0 && strcmp($post,$col) !== 0 &&
+                    strcmp($post,$table) !== 0 && strcmp($post,$order) !== 0){
+                        $start = $post;
+                    }
+                }
+            }
 
-        $data = $Main->select($table, $order, $col, $limit);
-
-        echo '<h1>'.$table.'</h1>';
-
-    foreach ($data as $rows) {
-        echo
-        '<table
+            for($i = $start*$limit; $i < $limit*($start+1); $i++){
+                $rows = $data[$i];
+                echo
+                '<table
         <tbody >
         <tr >
         <td > Photo</td >
@@ -242,18 +259,20 @@ $doYouNeedDataBaseSetup = $Main->registsExist();
         <td > Publish Date</td >
     </tr >
     <tr  >';
-        echo "<td><img src=".$rows['photoUrl']."></td>";
-        foreach ($rows as $key => $value){
-            if(strcmp($key, "photoUrl") !== 0 && strcmp($key, "summary") !== 0) {
-                echo "<td>" . $value . "</td>";
+                echo "<td><img src=" . $rows['photoUrl'] . "></td>";
+                foreach ($rows as $key => $value) {
+                    if (strcmp($key, "photoUrl") !== 0 && strcmp($key, "summary") !== 0) {
+                        echo "<td>" . $value . "</td>";
+                    }
+                }
+                echo '</table
+        </tbody>';
+                echo '<div >' . $rows["summary"] . '</div>';
+                echo '<br> <br>';
+                if($data[$i+1] === null) break;
             }
         }
-        echo '</table
-        </tbody>';
-        echo '<div >'.$rows["summary"].'</div>';
-        echo '<br> <br>';
-    }
-    }
+
     echo '</div>';
     ?>
 

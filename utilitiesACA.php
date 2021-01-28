@@ -19,13 +19,8 @@ class utilitiesACA
             CURLOPT_HTTPGET => true, //explicits the usage of HTTP Get method
             CURLOPT_SSL_VERIFYPEER => true, //enables SSL certification
             CURLOPT_USERAGENT      => self::SIGNATURE, //sets user agent for HTTP Header
-            CURLOPT_COOKIEFILE     =>"cookie.txt", //set cookie file
             CURLOPT_RETURNTRANSFER => true,     // returns the web page
             CURLOPT_HEADER         => false,    // doesn't return the header
-            CURLOPT_FOLLOWLOCATION => true,     // follow redirects
-            CURLOPT_CONNECTTIMEOUT => 120,      // timeout on connect
-            CURLOPT_TIMEOUT        => 120,      // timeout on response
-            CURLOPT_MAXREDIRS      => 10,       // stop after 10 redirects
         );
 
         if($curlResource){
@@ -41,66 +36,6 @@ class utilitiesACA
         return false;
     }
 
-
-    //---------------------------------- EXTRACTION OF ENTITY PAGE ----------------------------------
-
-    public static function pageInfoExtraction($htmlFile){
-        $oDom = new DOMDocument();
-        @$oDom->loadHtml($htmlFile);
-
-        // TITLE
-
-        $title = $oDom->getElementsByTagName("h1")[0]->nodeValue;
-
-        // METASCORE
-
-        $a = $oDom->getElementsByTagName("a");
-        foreach ($a as $elem){
-            $att = $elem->getAttribute("class");
-            if($att === "metascore_anchor"){
-                $span = $elem->getElementsByTagName("span");
-                $score = $span[0]->nodeValue;
-                break;
-            }
-        }
-
-        // REST
-
-        $spanElems = $oDom->getElementsByTagName("span");
-
-        $summary = "No Summary"; // in case there is no summary available on the entity's page
-
-        foreach ($spanElems as $span){
-            // apanhar Summary
-               if($span->getAttribute("class") === "label" && $span->nodeValue === "Summary:"){
-                   if($span->nextSibling->nextSibling->getAttribute("class")!=="inline_expand_collapse inline_collapsed"){
-                       $summary = $span->nextSibling->nextSibling->nodeValue;
-                       break;
-                   }
-               }
-               if($span->getAttribute("class") === "blurb blurb_expanded"){
-                   $summary = $span->nodeValue;
-                   $summary = stripos($summary, "Expand");
-                   break;
-               }
-        }
-
-        // sets of data to insert in DB
-        $info = [
-            "Title" => $title,
-            "Score" => $score,
-            "Summary" => trim($summary)
-        ];
-
-        // string treatment to make sure they can be inserted into the DB (looking for ' and ")
-        $badChars = array("'", '"');
-        $replacingChars = array("|","/");
-        foreach($info as $key => $value){
-            $info[$key] = str_replace($badChars, $replacingChars, "$value");
-        }
-
-        return $info;
-    }
 
     //---------------------------------- EXTRACTION OF Top 100 by Score ----------------------------------
 
