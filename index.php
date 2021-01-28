@@ -1,9 +1,6 @@
 <?php   require_once "Main.php";
 
 $Main = new Main();
-$page = 1;
-$end = 0;
-$beggining = 0;
 
 ?>
 <!DOCTYPE html>

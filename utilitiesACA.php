@@ -79,6 +79,7 @@ class utilitiesACA
                     $url = $tr->getElementsByTagName("a")[0]->getAttribute("href");
 
                     $divSearch = $tr->getElementsByTagName("div");
+
                     foreach ($divSearch as $elem) {
                         $class = $elem->getAttribute("class");
                         if (strpos($class, "metascore_w large") === 0) {
