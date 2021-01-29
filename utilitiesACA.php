@@ -48,6 +48,7 @@ class utilitiesACA
 
         $collectionOfDivs = $oDom->getElementsByTagName('div');
 
+        // Divs from top 100
         foreach ($collectionOfDivs as $div) {
             if (strcmp($div->getAttribute("class"),"browse_list_wrapper one browse-list-large") === 0) {
                 $div1To5 = $div;
@@ -63,12 +64,16 @@ class utilitiesACA
             }
         }
 
+        // collection of Divs
         $divElements = [$div1To5, $div6To10, $div11To15, $div16To100];
 
         foreach ($divElements as $div) {
             if($div !== null){
+                // TR's where the entities are stored
             $collectionOfTr = $div->getElementsByTagName("tr");
             foreach ($collectionOfTr as $tr) {
+
+                // class = splacer -> it's an entity we want
                 if (strcmp($tr->getAttribute("class"),"spacer") !== 0) {
 
 
@@ -80,6 +85,7 @@ class utilitiesACA
 
                     $divSearch = $tr->getElementsByTagName("div");
 
+                    // score element
                     foreach ($divSearch as $elem) {
                         $class = $elem->getAttribute("class");
                         if (strpos($class, "metascore_w large") === 0) {
